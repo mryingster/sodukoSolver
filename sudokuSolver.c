@@ -5,6 +5,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <unistd.h>
 
 typedef struct puzzle puzzle;
 
@@ -301,11 +303,12 @@ int main() {
     // Struct for puzzle
     puzzle sudoku = {};
 
-    // Read in game grid
-    //     0        10        20        30        40        50        60        70        80
-    //     |---------|---------|---------|---------|---------|---------|---------|---------|
-    printf("Please input each row of the unsolved puzzle without spaces. Enter only 9 \n" \
-           "digits using 0 to denote unknown values (eg. 100305400).\n\n");
+    if (isatty(0))
+        // Read in game grid
+        //     0        10        20        30        40        50        60        70        80
+        //     |---------|---------|---------|---------|---------|---------|---------|---------|
+        printf("Please input each row of the unsolved puzzle without spaces. Enter only 9 \n" \
+               "digits using 0 to denote unknown values (eg. 100305400).\n\n");
 
     for (int row = 0; row<9; row++)
     {
@@ -313,21 +316,22 @@ int main() {
 
         // Verify that puzzle is valid as input so far
         bool validPuzzle = false;
-        while (validPuzzle == false) {
+        do {
 
             // Verify that current line input is valid
             bool validInput = false;
-            while (validInput == false) {
+            do {
 
                 // Get input from the user
-                printf("Row %d: ", row+1);
+                if (isatty(0))
+                    printf("Row %d: ", row+1);
                 scanf("%s", input);
 
                 // Verify 9 digits
                 validInput = isValidInput(input);
                 if (validInput == false)
-                    printf("Invalid input! Must be 9 digits.\n");
-            }
+                    printf("Invalid input on row %d! Must be 9 digits, and not \"%s\"\n", row+1, input);
+            } while (validInput == false && isatty(0));
 
             // Copy input digits to structure
             for (int col=0; col<9; col++)
@@ -337,7 +341,9 @@ int main() {
             validPuzzle = isValidPuzzle(sudoku);
             if (validPuzzle == false)
                 printf("Line invalidates puzzle. Please re-enter line.\n");
-        }
+            if (!isatty(0) && (!validPuzzle || !validInput))
+                exit(1);
+        } while (validPuzzle == false && isatty(0));
     }
 
     // Print input puzzle
