@@ -346,10 +346,7 @@ int main()
 
             // Copy input digits to structure
             for (int col=0; col<9; col++)
-            {
-                char str = input[col];
-                sudoku.cell[row][col][0] = atoi(&str);
-            }
+                sudoku.cell[row][col][0] = input[col]-'0';
 
             // Verify that new row contains valid puzzle
             validPuzzle = isValidPuzzle(sudoku);
