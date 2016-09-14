@@ -315,35 +315,31 @@ int main() {
         char input[9] = "";
 
         // Verify that puzzle is valid as input so far
-        bool validPuzzle = false;
-        do {
-
-            // Verify that current line input is valid
-            bool validInput = false;
-            do {
-
+      retry:
                 // Get input from the user
                 if (isatty(0))
                     printf("Row %d: ", row+1);
                 scanf("%s", input);
 
                 // Verify 9 digits
-                validInput = isValidInput(input);
-                if (validInput == false)
+                if (!isValidInput(input)) {
                     printf("Invalid input on row %d! Must be 9 digits, and not \"%s\"\n", row+1, input);
-            } while (validInput == false && isatty(0));
+                    if (isatty(0))
+                        goto retry;
+                    exit(1);
+                }
 
             // Copy input digits to structure
             for (int col=0; col<9; col++)
                 sudoku.cell[row][col][0] = input[col]-'0';
 
             // Verify that new row contains valid puzzle
-            validPuzzle = isValidPuzzle(sudoku);
-            if (validPuzzle == false)
+            if (!isValidPuzzle(sudoku)) {
                 printf("Line invalidates puzzle. Please re-enter line.\n");
-            if (!isatty(0) && (!validPuzzle || !validInput))
+                if (isatty(0))
+                    goto retry;
                 exit(1);
-        } while (validPuzzle == false && isatty(0));
+            }
     }
 
     // Print input puzzle
