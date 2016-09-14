@@ -8,14 +8,12 @@
 
 typedef struct puzzle puzzle;
 
-struct puzzle
-{
+struct puzzle {
     int cell[9][9][10];
 };
 
 // Check if puzzle is valid.
-bool isValidPuzzle(puzzle g)
-{
+bool isValidPuzzle(puzzle g) {
     // Check rows for duplicate values
     for (int x=0; x<9; x++)
         for (int y=0; y<8; y++)
@@ -49,8 +47,7 @@ bool isValidPuzzle(puzzle g)
     return true;
 }
 
-bool isSolved(puzzle g)
-{
+bool isSolved(puzzle g) {
     for (int x=0; x<9; x++)
         for (int y=0; y<9; y++)
             if (g.cell[x][y][0] == 0)
@@ -58,8 +55,7 @@ bool isSolved(puzzle g)
     return true;
 }
 
-void printPuzzle(puzzle g)
-{
+void printPuzzle(puzzle g) {
     printf("\n");
     for (int i=0; i<9; i++)
     {
@@ -84,8 +80,7 @@ void printPuzzle(puzzle g)
     printf("\n");
 }
 
-void printPuzzleOptions(puzzle g)
-{
+void printPuzzleOptions(puzzle g) {
     printf("\n");
     for (int x=0; x<9; x++)
     {
@@ -107,8 +102,7 @@ void printPuzzleOptions(puzzle g)
     printf("\n");
 }
 
-int isSingleCandidate(puzzle *g, int x, int y)
-{
+int isSingleCandidate(puzzle *g, int x, int y) {
     int count = 0;
     int candidate = 0;
     for (int i=1; i<10; i++)
@@ -122,8 +116,7 @@ int isSingleCandidate(puzzle *g, int x, int y)
     return 0;
 }
 
-void eliminateNumberInLine(puzzle *g, int x, int y)
-{
+void eliminateNumberInLine(puzzle *g, int x, int y) {
     for (int i=0; i<9; i++)
     {
         if (g->cell[i][y][0] > 0)                     // Search in row. If not blank (0)...
@@ -133,8 +126,7 @@ void eliminateNumberInLine(puzzle *g, int x, int y)
     }
 }
 
-void eliminateNumberInBox(puzzle *g, int x, int y)
-{
+void eliminateNumberInBox(puzzle *g, int x, int y) {
     int row = ceil(x/3)*3;                        // Confine to 3x3 square
     int col = ceil(y/3)*3;                        // Confine to 3x3 square
 
@@ -144,8 +136,7 @@ void eliminateNumberInBox(puzzle *g, int x, int y)
                 g->cell[x][y][g->cell[i][n][0]] = false; // Mark false
 }
 
-void crossCheckBoxCandidates(puzzle *g, int x, int y)
-{
+void crossCheckBoxCandidates(puzzle *g, int x, int y) {
     int row = ceil(x/3)*3;
     int col = ceil(y/3)*3;
 
@@ -171,8 +162,7 @@ void crossCheckBoxCandidates(puzzle *g, int x, int y)
     }
 }
 
-void crossCheckLineCandidates(puzzle *g, int x, int y)
-{
+void crossCheckLineCandidates(puzzle *g, int x, int y) {
     for (int j=1; j<10; j++)                     // For each candidate for x, y
     {
         if (g->cell[x][y][j] == false) continue; // Skip non-candidates
@@ -211,8 +201,7 @@ void crossCheckLineCandidates(puzzle *g, int x, int y)
     }
 }
 
-void solveGrid(puzzle *g)
-{
+void solveGrid(puzzle *g) {
     bool changed = true;
     while (changed == true)
     {
@@ -249,16 +238,14 @@ void solveGrid(puzzle *g)
     }
 }
 
-void copyPuzzle(puzzle g, puzzle *t)
-{
+void copyPuzzle(puzzle g, puzzle *t) {
     for (int x=0; x<9; x++)
         for (int y=0; y<9; y++)
             for (int j=0; j<10; j++)
                 t->cell[x][y][j] = g.cell[x][y][j];
 }
 
-void guessSolution(puzzle *g, int level)
-{
+void guessSolution(puzzle *g, int level) {
     if (level > 2) return;                              // Don't allow recursion beyond 2 to happen.
     if (isSolved(*g)) return;                           // Don't recurse if solved
 
@@ -297,8 +284,7 @@ void guessSolution(puzzle *g, int level)
             }
 }
 
-bool isValidInput(char str[9])
-{
+bool isValidInput(char str[9]) {
     // Check for length of string
     if (strlen(str) != 9)
         return false;
@@ -311,8 +297,7 @@ bool isValidInput(char str[9])
     return true;
 }
 
-int main()
-{
+int main() {
     // Struct for puzzle
     puzzle sudoku = {};
 
