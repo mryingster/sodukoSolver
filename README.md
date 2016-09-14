@@ -10,6 +10,7 @@ SudokuSolver can be run in a terminal, and the user will be prompted to enter th
 Alternatively, a puzzle may be redirected to SudokuSolver from a file, using this syntax: `./sudokuSolver < test.txt`
 
 ### Sample Puzzle File
+```
 800000000
 003600000
 070090200
@@ -19,10 +20,12 @@ Alternatively, a puzzle may be redirected to SudokuSolver from a file, using thi
 001000068
 008500010
 090000400
+```
 
 ### Sample Output
 
-``` 8     |       |      
+```
+ 8     |       |      
      3 | 6     |      
    7   |   9   | 2    
 -------+-------+-------
