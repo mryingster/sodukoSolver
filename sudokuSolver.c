@@ -316,30 +316,30 @@ int main() {
 
         // Verify that puzzle is valid as input so far
       retry:
-                // Get input from the user
-                if (isatty(0))
-                    printf("Row %d: ", row+1);
-                scanf("%s", input);
+        // Get input from the user
+        if (isatty(0))
+            printf("Row %d: ", row+1);
+        scanf("%s", input);
 
-                // Verify 9 digits
-                if (!isValidInput(input)) {
-                    printf("Invalid input on row %d! Must be 9 digits, and not \"%s\"\n", row+1, input);
-                    if (isatty(0))
-                        goto retry;
-                    exit(1);
-                }
+        // Verify 9 digits
+        if (!isValidInput(input)) {
+            printf("Invalid input on row %d! Must be 9 digits, and not \"%s\"\n", row+1, input);
+            if (isatty(0))
+                goto retry;
+            exit(1);
+        }
 
-            // Copy input digits to structure
-            for (int col=0; col<9; col++)
-                sudoku.cell[row][col][0] = input[col]-'0';
+        // Copy input digits to structure
+        for (int col=0; col<9; col++)
+            sudoku.cell[row][col][0] = input[col]-'0';
 
-            // Verify that new row contains valid puzzle
-            if (!isValidPuzzle(sudoku)) {
-                printf("Line invalidates puzzle. Please re-enter line.\n");
-                if (isatty(0))
-                    goto retry;
-                exit(1);
-            }
+        // Verify that new row contains valid puzzle
+        if (!isValidPuzzle(sudoku)) {
+            printf("Line invalidates puzzle. Please re-enter line.\n");
+            if (isatty(0))
+                goto retry;
+            exit(1);
+        }
     }
 
     // Print input puzzle
