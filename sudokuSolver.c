@@ -9,41 +9,57 @@
 #include <unistd.h>
 
 typedef struct puzzle puzzle;
+typedef struct coord coord;
 
 struct puzzle {
     int cell[9][9][10];
 };
 
-// Check if puzzle is valid.
-bool isValidPuzzle(puzzle g) {
-    // Check rows for duplicate values
-    for (int x=0; x<9; x++)
-        for (int y=0; y<8; y++)
-            for (int z=y+1; z<9; z++)
-                if (g.cell[x][y][0] != 0)
-                    if (g.cell[x][y][0] == g.cell[x][z][0])
-                        return false;
+struct coord {
+    int x;
+    int y;
+};
 
-    // Check cols for duplicate values
+// Check if puzzle is valid.
+bool isValidPuzzle(puzzle g, coord *error) {
+    // Check rows for duplicate values
     for (int y=0; y<9; y++)
         for (int x=0; x<8; x++)
             for (int z=x+1; z<9; z++)
-                if (g.cell[x][y][0] != 0)
-                    if (g.cell[x][y][0] == g.cell[z][y][0])
+                if (g.cell[y][x][0] != 0)
+                    if (g.cell[y][x][0] == g.cell[y][z][0]) {
+                        error->x = z;
+                        error->y = y;
                         return false;
+                    }
 
-    // Check squares for duplicate values
+    // Check cols for duplicate values
+    for (int x=0; x<9; x++)
+        for (int y=0; y<8; y++)
+            for (int z=y+1; z<9; z++)
+                if (g.cell[y][x][0] != 0)
+                    if (g.cell[y][x][0] == g.cell[z][x][0]) {
+                        error->x = x;
+                        error->y = z;
+                        return false;
+                    }
+
+    // Check quadrants for duplicate values
     for (int qx=0; qx<9; qx+=3)
         for (int qy=0; qy<9; qy+=3)
         {
             int used[10] = {0};
-            for (int x=0; x<3; x++)
-                for (int y=0; y<3; y++)
-                    used[g.cell[qx+x][qy+y][0]]++;
-
-            for (int i=1; i<10; i++)
-                if (used[i] > 1)
-                    return false;
+            for (int y=0; y<3; y++)
+                for (int x=0; x<3; x++)
+                {
+                    int cellValue = g.cell[qy+y][qx+x][0];
+                    if (cellValue > 0)
+                        if (++used[cellValue] > 1) {
+                            error->x = qx+x;
+                            error->y = qy+y;
+                            return false;
+                        }
+                }
         }
 
     return true;
@@ -334,8 +350,10 @@ int main() {
             sudoku.cell[row][col][0] = input[col]-'0';
 
         // Verify that new row contains valid puzzle
-        if (!isValidPuzzle(sudoku)) {
-            printf("Line invalidates puzzle. Please re-enter line.\n");
+        coord test = {};
+        if (!isValidPuzzle(sudoku, &test)) {
+            printf("Puzzle invalidated by value %d (row %d, column %d). Please re-enter row.\n",
+                   *sudoku.cell[test.y][test.x], test.y+1, test.x+1);
             if (isatty(0))
                 goto retry;
             exit(1);
