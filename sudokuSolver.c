@@ -13,11 +13,8 @@ struct puzzle
     int cell[9][9][10];
 };
 
-void error()
-{
-}
-
-bool isValid(puzzle g)
+// Check if puzzle is valid.
+bool isValidPuzzle(puzzle g)
 {
     // Check rows for duplicate values
     for (int x=0; x<9; x++)
@@ -45,7 +42,8 @@ bool isValid(puzzle g)
                     used[g.cell[qx+x][qy+y][0]]++;
 
             for (int i=1; i<10; i++)
-                return false;
+                if (used[i] > 1)
+                    return false;
         }
 
     return true;
@@ -299,64 +297,82 @@ void guessSolution(puzzle *g, int level)
             }
 }
 
+bool isValidInput(char str[9])
+{
+    // Check for length of string
+    if (strlen(str) != 9)
+        return false;
+
+    // Make sure all characters are digits
+    for (int i=0; i<9; i++)
+        if (str[i] < '0' || str[i] > '9')
+            return false;
+
+    return true;
+}
+
 int main()
 {
     // Struct for puzzle
-    puzzle sudoku;
+    puzzle sudoku = {};
 
     // Read in game grid
     //     0        10        20        30        40        50        60        70        80
     //     |---------|---------|---------|---------|---------|---------|---------|---------|
     printf("Please input each row of the unsolved puzzle without spaces. Enter only 9 \n" \
-           "digits using 0 to denote unknown values (eg 100305400).\n\n");
+           "digits using 0 to denote unknown values (eg. 100305400).\n\n");
 
     for (int row = 0; row<9; row++)
     {
         char input[9] = "";
-        printf("Row %d: ", row+1);
-        scanf("%s", input);
 
-        // Check that 9 digits were entered
-        while (strlen(input) != 9)
-        {
-            printf("Invalid input! Must be 9 digits!\n");
-            printf("Row %d: ", row+1);
-            scanf("%s", input);
-        }
+        // Verify that puzzle is valid as input so far
+        bool validPuzzle = false;
+        while (validPuzzle == false) {
 
-        for (int col=0; col<9; col++)
-        {
-            char str = input[col];
-            //strncpy(str, input[col], 1);
-            sudoku.cell[row][col][0] = atoi(&str);
+            // Verify that current line input is valid
+            bool validInput = false;
+            while (validInput == false) {
+
+                // Get input from the user
+                printf("Row %d: ", row+1);
+                scanf("%s", input);
+
+                // Verify 9 digits
+                validInput = isValidInput(input);
+                if (validInput == false)
+                    printf("Invalid input! Must be 9 digits.\n");
+            }
+
+            // Copy input digits to structure
+            for (int col=0; col<9; col++)
+            {
+                char str = input[col];
+                sudoku.cell[row][col][0] = atoi(&str);
+            }
+
+            // Verify that new row contains valid puzzle
+            validPuzzle = isValidPuzzle(sudoku);
+            if (validPuzzle == false)
+                printf("Line invalidates puzzle. Please re-enter line.\n");
         }
     }
 
     // Print input puzzle
     printPuzzle(sudoku);
 
-    // Verify puzzle is valid
-    if (isValid(sudoku) == false)
-    {
-        printf("Invalid puzzle\n");
-        return 1;
-    }
-
     // Simple deduction first
     solveGrid(&sudoku);
 
     // Make some guesses to solve
     if (isSolved(sudoku) == false)
-    {
-        printf("(Requires guessing)\n");
         guessSolution(&sudoku, 1);
-    }
 
     // Print solution
     printPuzzle(sudoku);
 
-    if (isSolved(sudoku))
-        printf("Unable to solve.");
+    //if (isSolved(sudoku) == false)
+    //printf("Unable to solve.");
 
     return 0;
 }
