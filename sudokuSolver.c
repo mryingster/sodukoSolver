@@ -256,13 +256,6 @@ void solveGrid(puzzle *g) {
     }
 }
 
-void copyPuzzle(puzzle g, puzzle *t) {
-    for (int x=0; x<9; x++)
-        for (int y=0; y<9; y++)
-            for (int j=0; j<10; j++)
-                t->cell[x][y][j] = g.cell[x][y][j];
-}
-
 void guessSolution(puzzle *g, int level) {
     if (level > 2) return;                              // Don't allow recursion beyond 2 to happen.
     if (isSolved(*g)) return;                           // Don't recurse if solved
@@ -274,8 +267,7 @@ void guessSolution(puzzle *g, int level) {
                 bool movePossible = false;              // Keep track of possible moves
                 for (int j=1; j<10; j++)
                 {
-                    puzzle t;
-                    copyPuzzle(*g, &t);                 // Copy puzzle so we keep original intact
+                    puzzle t = *g;                      // Copy puzzle so we keep original intact
                     if (t.cell[x][y][j] == true)        // See if j is a candidate number
                     {
                         movePossible = true;            // We have a valid move to try
@@ -283,7 +275,7 @@ void guessSolution(puzzle *g, int level) {
                         solveGrid(&t);                  // Try solving grid
                         if (isSolved(t))                // If solved,
                         {
-                            copyPuzzle(t, g);           // Copy solved puzzle back to master
+                            *g = t;                     // Copy solved puzzle back to master
                             return;                     // and return!
                         }
                         else
@@ -291,7 +283,7 @@ void guessSolution(puzzle *g, int level) {
                             guessSolution(&t, level+1); // Recurse back if not yet solved
                             if (isSolved(t))            // If that did the trick
                             {
-                                copyPuzzle(t, g);       // Copy back to master
+                                *g = t;                 // Copy back to master
                                 return;                 // And return!
                             }
                         }
