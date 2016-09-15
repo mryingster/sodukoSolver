@@ -328,14 +328,14 @@ int main() {
 
     for (int row = 0; row<9; row++)
     {
-        char input[9] = "";
+        char input[100] = "";
 
         // Verify that puzzle is valid as input so far
       retry:
         // Get input from the user
         if (isatty(0))
             printf("Row %d: ", row+1);
-        scanf("%s", input);
+        scanf("%99s", input);
 
         // Verify 9 digits
         if (!isValidInput(input)) {
