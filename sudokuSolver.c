@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <time.h>
 
 typedef struct puzzle puzzle;
 typedef struct coord coord;
@@ -307,9 +308,91 @@ bool isValidInput(char str[9]) {
     return true;
 }
 
-int main() {
+void generateCompleteBoard(puzzle *g) {
+    srand(time(NULL));
+    puzzle blank = {};
+
+    while(isSolved(*g) == false) {
+        // Clear puzzle so we can start over
+        *g = blank;
+
+        // Build puzzle by randomly generating every other row
+        for (int row=0; row < 9;) {
+            // Populate array with available digits
+            int available[10] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+            for (int i = 0; i<9; i++) {
+                // Randomly select values for row
+                int r = 0;
+                while (available[r] == 0) {
+                    r = rand() % 9 + 1;
+                }
+                g->cell[row][i][0] = r;
+                available[r] = 0;
+            }
+
+            coord tmp = {};
+            // If randomized row does not invalidate puzzle, advance to next row
+            if (isValidPuzzle(*g, &tmp)) {
+                row+=2;
+            }
+        }
+
+        // Use solving method to fill in remaining squares
+        solveGrid(g);
+        if (isSolved(*g) == false)
+            guessSolution(g, 1);
+    }
+}
+
+void removeSquares(puzzle *g) {
+    srand(time(NULL));
+
+    // 81 squares total, 20 in 1/4
+    // ~25 remaining for hard (25%) -> 20 * .25 = 5 -> 15
+    // ~36 remaining for easy (45%) -> 20 * .45 = 9 -> 11
+
+    int n = rand() % 4 + 11; // Number of squares we have to remove from quadrant
+
+    for (int i=0; i<n;) {
+        // Select random coords
+        int x = rand() % 5;
+        int y = rand() % 4;
+
+        // Make sure it's not already blank
+        if (g->cell[y][x][0] == 0)
+            continue;
+
+        // Remove values, rotate 90, and do the same, etc
+        g->cell[y][x][0] = 0;     // 0 degrees
+        g->cell[8-y][8-x][0] = 0; // 180 degrees
+        g->cell[8-x][y][0] = 0;   // 90 degrees
+        g->cell[x][8-y][0] = 0;   // 270 degrees
+
+        // advance
+        i++;
+    }
+
+    // 50/50 for center
+    if (rand() % 2 == 0)
+        g->cell[4][4][0] = 0;
+}
+
+int main(int argc, char *argv[]) {
     // Struct for puzzle
     puzzle sudoku = {};
+
+    // Parse Arguments
+    for (int i=1; i<argc; i++)
+    {
+        // Generate new puzzle
+        if (strcmp(argv[i], "-g") == 0)
+        {
+            generateCompleteBoard(&sudoku);
+            removeSquares(&sudoku);
+            printPuzzle(sudoku);
+            return(0);
+        }
+    }
 
     if (isatty(0))
         // Read in game grid
