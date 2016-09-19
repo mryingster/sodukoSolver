@@ -347,34 +347,80 @@ void generateCompleteBoard(puzzle *g) {
 void removeSquares(puzzle *g) {
     srand(time(NULL));
 
-    // 81 squares total, 20 in 1/4
-    // ~25 remaining for hard (25%) -> 20 * .25 = 5 -> 15
-    // ~36 remaining for easy (45%) -> 20 * .45 = 9 -> 11
+    // 81 squares total
+    // 75% removal for hard -> ~61
+    // 55% removal for easy -> ~45
 
-    int n = rand() % 4 + 11; // Number of squares we have to remove from quadrant
+    // Number of squares we have to remove from quadrant
+    int n = rand() % 16 + 45;
+    int x, y;
 
-    for (int i=0; i<n;) {
-        // Select random coords
-        int x = rand() % 5;
-        int y = rand() % 4;
+    // Select the type of symmetry we will have
+    const int symmetry = rand() % 3;
 
-        // Make sure it's not already blank
-        if (g->cell[y][x][0] == 0)
-            continue;
+    while (n > 0) {
+        switch (symmetry) {
 
-        // Remove values, rotate 90, and do the same, etc
-        g->cell[y][x][0] = 0;     // 0 degrees
-        g->cell[8-y][8-x][0] = 0; // 180 degrees
-        g->cell[8-x][y][0] = 0;   // 90 degrees
-        g->cell[x][8-y][0] = 0;   // 270 degrees
+        // No symmetry
+        case 0:
+            // Select random coords
+            x = rand() % 9;
+            y = rand() % 9;
 
-        // advance
-        i++;
+            // Make sure it's not already blank
+            if (g->cell[y][x][0] == 0)
+                continue;
+
+            g->cell[y][x][0] = 0;
+
+            n--;
+            break;
+
+        // Mirror
+        case 1:
+            // Select random coords
+            x = rand() % 5;
+            y = rand() % 4;
+
+            // Make sure it's not already blank
+            if (g->cell[y][x][0] == 0)
+                continue;
+
+            g->cell[y][x][0] = 0;     // No Flip
+            g->cell[y][8-x][0] = 0;   // Flip Horizontal
+            g->cell[8-y][x][0] = 0;   // Flip Vertical
+            g->cell[8-y][8-x][0] = 0; // Flip H/V
+
+            n -= 4;
+
+            // 50/50 for center
+            if (rand() % 2 == 0 && n-- <= 1)
+                g->cell[4][4][0] = 0;
+
+            break;
+
+        // Rotate
+        case 2:
+            // Select random coords
+            x = rand() % 5;
+            y = rand() % 5;
+
+            // Make sure it's not already blank
+            if (g->cell[y][x][0] == 0)
+                continue;
+
+            g->cell[y][x][0] = 0;     // 0 degrees
+            g->cell[8-y][8-x][0] = 0; // 180 degrees
+            g->cell[8-x][y][0] = 0;   // 90 degrees
+            g->cell[x][8-y][0] = 0;   // 270 degrees
+
+            n -= 4;
+            break;
+
+        default:
+            break;
+        }
     }
-
-    // 50/50 for center
-    if (rand() % 2 == 0)
-        g->cell[4][4][0] = 0;
 }
 
 int main(int argc, char *argv[]) {
